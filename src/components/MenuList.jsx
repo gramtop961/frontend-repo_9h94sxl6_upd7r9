@@ -1,40 +1,43 @@
-import React from 'react';
+import { useRef } from 'react';
 
-export default function MenuList({ items, isAdmin, onAddItem }) {
+function MenuCard({ item, isAdmin, onAdd, onChangeImage }) {
+  const inputRef = useRef(null);
   return (
-    <div className="max-w-6xl mx-auto p-4">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-semibold">List Menu</h2>
+    <div className="rounded-xl border border-slate-200 overflow-hidden bg-white shadow-sm">
+      {item.image ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={item.image} alt={item.name} className="w-full h-40 object-cover" />
+      ) : (
+        <div className="w-full h-40 bg-slate-100 flex items-center justify-center text-slate-500 text-sm">Gambar tidak tersedia</div>
+      )}
+      <div className="p-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="font-semibold text-slate-800">{item.name}</h3>
+            <p className="text-sm text-slate-500">Rp{item.price.toLocaleString('id-ID')}</p>
+          </div>
+          {!isAdmin && (
+            <button onClick={() => onAdd(item)} className="px-3 py-1.5 rounded-md bg-emerald-600 text-white text-sm hover:bg-emerald-700">Tambah</button>
+          )}
+        </div>
+
         {isAdmin && (
-          <button
-            onClick={onAddItem}
-            className="px-4 py-2 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700"
-          >
-            Tambah Menu
-          </button>
+          <div className="mt-3">
+            <input ref={inputRef} type="file" accept="image/*" className="hidden" onChange={(e) => onChangeImage(item.id, e.target.files?.[0] || null)} />
+            <button onClick={() => inputRef.current?.click()} className="px-3 py-1.5 rounded-md border text-sm hover:bg-slate-50">{item.image ? 'Ganti' : 'Tambah'} Gambar</button>
+          </div>
         )}
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {items.map((m) => (
-          <div key={m.id} className="border rounded-xl overflow-hidden bg-white shadow-sm">
-            <div className="h-36 bg-gray-100">
-              {m.image ? (
-                // eslint-disable-next-line jsx-a11y/img-redundant-alt
-                <img src={m.image} alt={`gambar ${m.name}`} className="w-full h-full object-cover" />
-              ) : (
-                <div className="w-full h-full grid place-items-center text-gray-500 text-sm">Gambar tidak tersedia</div>
-              )}
-            </div>
-            <div className="p-3 flex items-center justify-between">
-              <div>
-                <div className="font-medium">{m.name}</div>
-                <div className="text-sm text-emerald-700 font-semibold">Rp {m.price.toLocaleString('id-ID')}</div>
-              </div>
-              {m.popular && <span className="text-xs bg-emerald-50 text-emerald-700 px-2 py-1 rounded">Favorit</span>}
-            </div>
-          </div>
-        ))}
-      </div>
+    </div>
+  );
+}
+
+export default function MenuList({ items, isAdmin, onAddToOrder, onChangeItemImage }) {
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      {items.map((it) => (
+        <MenuCard key={it.id} item={it} isAdmin={isAdmin} onAdd={onAddToOrder} onChangeImage={onChangeItemImage} />
+      ))}
     </div>
   );
 }
